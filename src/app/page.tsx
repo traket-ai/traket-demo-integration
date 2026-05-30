@@ -15,6 +15,12 @@ type ChatResponse = {
   error?: string;
   model?: string;
   status?: string;
+  tracking?: {
+    accepted: number;
+    configured: boolean;
+    error?: string;
+    rejected: number;
+  };
   usage?: {
     input_tokens?: number;
     output_tokens?: number;
@@ -33,11 +39,15 @@ function createMessage(role: Message["role"], content: string): Message {
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
+  const [appCustomerId, setAppCustomerId] = useState("org_demo_001");
+  const [stripeCustomerId, setStripeCustomerId] = useState("cus_demo_001");
+  const [demoEmail, setDemoEmail] = useState("alex@demo.test");
   const [model, setModel] = useState(chatModels[0].id);
   const [reasoningEffort, setReasoningEffort] = useState<ReasoningEffort>("low");
   const [isThinking, setIsThinking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUsage, setLastUsage] = useState<ChatResponse["usage"]>(null);
+  const [lastTracking, setLastTracking] = useState<ChatResponse["tracking"]>(undefined);
 
   const selectedModel = useMemo(
     () => chatModels.find((item) => item.id === model) ?? chatModels[0],
@@ -58,17 +68,21 @@ export default function Home() {
     setDraft("");
     setError(null);
     setLastUsage(null);
+    setLastTracking(undefined);
     setIsThinking(true);
 
     try {
       const response = await fetch("/api/chat", {
         body: JSON.stringify({
+          appCustomerId,
+          demoEmail,
           messages: nextMessages.map((message) => ({
             role: message.role,
             content: message.content
           })),
           model,
-          reasoningEffort
+          reasoningEffort,
+          stripeCustomerId
         }),
         headers: {
           "Content-Type": "application/json"
@@ -87,6 +101,7 @@ export default function Home() {
         createMessage("assistant", data.content ?? "No response text returned.")
       ]);
       setLastUsage(data.usage ?? null);
+      setLastTracking(data.tracking);
     } catch (requestError) {
       setError(
         requestError instanceof Error
@@ -118,8 +133,8 @@ export default function Home() {
         </div>
 
         <div className="sidebar-note">
-          SDK metering is intentionally not wired yet. This demo starts with the
-          OpenAI chat surface.
+          Traket SDK metering is wired in the server route. Add a write key to
+          enable tracking.
         </div>
       </aside>
 
@@ -131,6 +146,33 @@ export default function Home() {
           </div>
 
           <div className="controls">
+            <label>
+              <span>App customer ID</span>
+              <input
+                value={appCustomerId}
+                onChange={(event) => setAppCustomerId(event.target.value)}
+                placeholder="org_demo_001"
+              />
+            </label>
+
+            <label>
+              <span>Stripe customer ID</span>
+              <input
+                value={stripeCustomerId}
+                onChange={(event) => setStripeCustomerId(event.target.value)}
+                placeholder="cus_demo_001"
+              />
+            </label>
+
+            <label>
+              <span>Demo email</span>
+              <input
+                value={demoEmail}
+                onChange={(event) => setDemoEmail(event.target.value)}
+                placeholder="alex@demo.test"
+              />
+            </label>
+
             <label>
               <span>Model</span>
               <select value={model} onChange={(event) => setModel(event.target.value)}>
@@ -167,8 +209,8 @@ export default function Home() {
               <h2>Ask the assistant something.</h2>
               <p>
                 Pick a model, send a message, and the server route will call the
-                OpenAI Responses API. The Traket SDK integration can be added
-                around this call later.
+                OpenAI Responses API through the Traket SDK when a write key is
+                configured.
               </p>
             </div>
           ) : (
@@ -194,6 +236,15 @@ export default function Home() {
             <div className="usage">
               Tokens: input {lastUsage.input_tokens ?? 0}, output{" "}
               {lastUsage.output_tokens ?? 0}, total {lastUsage.total_tokens ?? 0}
+            </div>
+          ) : null}
+          {lastTracking ? (
+            <div className="usage">
+              Traket tracking:{" "}
+              {lastTracking.configured
+                ? `${lastTracking.accepted} accepted, ${lastTracking.rejected} rejected`
+                : "not configured"}
+              {lastTracking.error ? ` (${lastTracking.error})` : ""}
             </div>
           ) : null}
 

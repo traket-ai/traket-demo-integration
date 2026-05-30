@@ -27,6 +27,7 @@ body {
 }
 
 button,
+input,
 select,
 textarea {
   font: inherit;
@@ -142,6 +143,7 @@ h1 {
 }
 
 select,
+input,
 textarea {
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -152,6 +154,11 @@ textarea {
 
 select {
   min-width: 150px;
+  padding: 9px 10px;
+}
+
+input {
+  min-width: 170px;
   padding: 9px 10px;
 }
 

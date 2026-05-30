@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@traket/sdk':
+        specifier: ^0.1.0
+        version: 0.1.0
       next:
         specifier: 16.2.6
         version: 16.2.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -249,6 +252,9 @@ packages:
 
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
+
+  '@traket/sdk@0.1.0':
+    resolution: {integrity: sha512-3Va3K1AxjwCwrn3FBFIKjv8Dqr/4Yz0t+0Z0e9WsbpawRi4E7epCCGz6nokNtPFsVK32QZT0mydkl2RccCOWgA==}
 
   '@types/node@20.19.41':
     resolution: {integrity: sha512-ECymXOukMnOoVkC2bb1Vc/w/836DXncOg5m8Xj1RH7xSHZJWNYY6Zh7EH477vcnD5egKNNfy2RpNOmuChhFPgQ==}
@@ -506,6 +512,8 @@ snapshots:
   '@swc/helpers@0.5.15':
     dependencies:
       tslib: 2.8.1
+
+  '@traket/sdk@0.1.0': {}
 
   '@types/node@20.19.41':
     dependencies:
